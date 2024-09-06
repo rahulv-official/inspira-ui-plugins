@@ -1,0 +1,64 @@
+name: Publish to NPM
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@main
+
+            - name: Set up Node.js
+              uses: actions/setup-node@main
+              with:
+                  node-version: "20"
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build
+              run: npm run build
+
+    test:
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@main
+
+            - name: Set up Node.js
+              uses: actions/setup-node@main
+              with:
+                  node-version: "20"
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Run Tests
+              run: npm run test
+
+    publish:
+        runs-on: ubuntu-latest
+        needs: test
+        steps:
+            - name: Check out the repository
+              uses: actions/checkout@main
+
+            - name: Set up Node.js
+              uses: actions/setup-node@main
+              with:
+                  node-version: "20"
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build the package
+              run: npm run build
+
+            - name: Publish to NPM
+              run: npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
